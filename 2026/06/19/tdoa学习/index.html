@@ -1,0 +1,252 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>TOA/TDOA 最小二乘定位与高斯牛顿迭代推导</title><meta name="keywords" content="水下定位,TOA,TDOA,最小二乘,高斯牛顿法,声线弯曲"><meta name="author" content="Abgnz1229"><meta name="copyright" content="Abgnz1229"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="1 TOA 模型设待求解的阵元位置 $\mathbf{A} &#x3D; [x, y, z]^T$，第 $i$ 个信号发射时刻的测量船位置 $\mathbf{P}_i &#x3D; [x_i, y_i, z_i]^T$，对应传播时延测量值为 $t_i$，信号收发的时钟偏差为 $t_s$，声速为 $c$，则 TOA 模型可表示为：  \|\mathbf{A} - \mathbf{P}_i\|_2 &#x3D; c\,(t_i -">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TOA&#x2F;TDOA 最小二乘定位与高斯牛顿迭代推导">
+<meta property="og:url" content="http://example.com/2026/06/19/tdoa%E5%AD%A6%E4%B9%A0/index.html">
+<meta property="og:site_name" content="Abgnz1229 s blog">
+<meta property="og:description" content="1 TOA 模型设待求解的阵元位置 $\mathbf{A} &#x3D; [x, y, z]^T$，第 $i$ 个信号发射时刻的测量船位置 $\mathbf{P}_i &#x3D; [x_i, y_i, z_i]^T$，对应传播时延测量值为 $t_i$，信号收发的时钟偏差为 $t_s$，声速为 $c$，则 TOA 模型可表示为：  \|\mathbf{A} - \mathbf{P}_i\|_2 &#x3D; c\,(t_i -">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/images/background.jpg">
+<meta property="article:published_time" content="2026-06-19T12:53:15.000Z">
+<meta property="article:modified_time" content="2026-06-19T13:33:05.729Z">
+<meta property="article:author" content="Abgnz1229">
+<meta property="article:tag" content="TDOA">
+<meta property="article:tag" content="TOA">
+<meta property="article:tag" content="声线弯曲">
+<meta property="article:tag" content="最小二乘">
+<meta property="article:tag" content="水下定位">
+<meta property="article:tag" content="高斯牛顿法">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/background.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2026/06/19/tdoa%E5%AD%A6%E4%B9%A0/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://fastly.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://fastly.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: true,
+    post: true
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: Abgnz1229","link":"链接: ","source":"来源: Abgnz1229 s blog","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://fastly.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://fastly.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'TOA/TDOA 最小二乘定位与高斯牛顿迭代推导',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2026-06-19 21:33:05'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 8.1.2"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="is-center"><div class="avatar-img"><img src="/img/head.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Abgnz1229</div><div class="author-info__description"></div></div><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/chenxz21/bcxm" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:xxxxxx@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-clock"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/shuoba"><i class="fa-fw fas fa-comment-dots"></i><span> 说吧</span></a></div><div class="menus_item"><a class="site-page" href="/gedan"><i class="fa-fw fas fa-music"></i><span> 歌单</span></a></div><div class="menus_item"><a class="site-page" href="/game"><i class="fa-fw fas fa-gamepad"></i><span> 游戏</span></a></div><div class="menus_item"><a class="site-page" href="/artitalk"><i class="fa-fw fa fa-heartbeat"></i><span> 时光</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-tools"></i><span> 工具</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/google"><span> 镜像</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://json.xbyzs.cf"><span> Json格式化</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://draw.xbyzs.cf"><span> Draw画布</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://enkey.xbyzs.cf"><span> EnKey</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Abgnz1229 s blog</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-clock"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/shuoba"><i class="fa-fw fas fa-comment-dots"></i><span> 说吧</span></a></div><div class="menus_item"><a class="site-page" href="/gedan"><i class="fa-fw fas fa-music"></i><span> 歌单</span></a></div><div class="menus_item"><a class="site-page" href="/game"><i class="fa-fw fas fa-gamepad"></i><span> 游戏</span></a></div><div class="menus_item"><a class="site-page" href="/artitalk"><i class="fa-fw fa fa-heartbeat"></i><span> 时光</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-tools"></i><span> 工具</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/google"><span> 镜像</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://json.xbyzs.cf"><span> Json格式化</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://draw.xbyzs.cf"><span> Draw画布</span></a></li><li><a class="site-page child" target="_blank" rel="noopener" href="https://enkey.xbyzs.cf"><span> EnKey</span></a></li></ul></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">TOA/TDOA 最小二乘定位与高斯牛顿迭代推导</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2026-06-19T12:53:15.000Z" title="发表于 2026-06-19 20:53:15">2026-06-19</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">学习笔记</a></span></div><div class="meta-secondline"></div></div></div><article class="post-content" id="article-container"><h2 id="1-TOA-模型"><a href="#1-TOA-模型" class="headerlink" title="1 TOA 模型"></a>1 TOA 模型</h2><p>设待求解的阵元位置 $\mathbf{A} = [x, y, z]^T$，第 $i$ 个信号发射时刻的测量船位置 $\mathbf{P}_i = [x_i, y_i, z_i]^T$，对应传播时延测量值为 $t_i$，信号收发的时钟偏差为 $t_s$，声速为 $c$，则 TOA 模型可表示为：</p>
+<script type="math/tex; mode=display">
+\|\mathbf{A} - \mathbf{P}_i\|_2 = c\,(t_i - t_s) \qquad i = 1, 2, \dots, N \tag{1}</script><p>据此可以构建最小二乘估计器：</p>
+<script type="math/tex; mode=display">
+\begin{bmatrix}
+x_{TOA} \\
+y_{TOA} \\
+z_{TOA}
+\end{bmatrix}
+= \arg\min_{x,y,z} \frac{1}{2} \sum_{i=1}^{N} f_{i,TOA}^2
+= \arg\min_{x,y,z} \frac{1}{2} \sum_{i=1}^{N} \Big[ \|\mathbf{A} - \mathbf{P}_i\|_2 - c\,(t_i - t_s) \Big]^2 \tag{2}</script><h2 id="2-考虑声线弯曲"><a href="#2-考虑声线弯曲" class="headerlink" title="2 考虑声线弯曲"></a>2 考虑声线弯曲</h2><p>在实际海洋环境中，声速 $c$ 不是恒定的。为了避免声线弯曲带来的误差，定义函数：</p>
+<script type="math/tex; mode=display">
+t_{ri} = T(x, y, z, x_i, y_i, z_i) \qquad i = 1, 2, \dots, N \tag{3}</script><p>其中 $T(x, y, z, x_i, y_i, z_i)$ 为通过声线追踪或有效声速等方式计算得到的、该阵元位置估计值与测量点相对位置下的传播时延理论值。</p>
+<p>则 (2) 式变为：</p>
+<script type="math/tex; mode=display">
+\begin{bmatrix}
+x_{TOA} \\
+y_{TOA} \\
+z_{TOA}
+\end{bmatrix}
+= \arg\min_{x,y,z} \frac{1}{2} \sum_{i=1}^{N} f_{i,TOA}^2
+= \arg\min_{x,y,z} \frac{1}{2} \sum_{i=1}^{N} \Big[ t_{ri} - (t_i - t_s) \Big]^2 \tag{4}</script><h2 id="3-高斯牛顿迭代"><a href="#3-高斯牛顿迭代" class="headerlink" title="3 高斯牛顿迭代"></a>3 高斯牛顿迭代</h2><p>使用预埋位置作为高斯牛顿法位置估计的迭代初值，第 $k$ 次迭代的结果为：</p>
+<script type="math/tex; mode=display">
+\begin{bmatrix}
+x_k \\
+y_k \\
+z_k
+\end{bmatrix}
+=
+\begin{bmatrix}
+x_{k-1} \\
+y_{k-1} \\
+z_{k-1}
+\end{bmatrix}
+- \bigl( \mathbf{J}_{TOA}^T \mathbf{J}_{TOA} \bigr)^{-1} \mathbf{J}_{TOA}^T \,\mathbf{f}_{TOA} \tag{5}</script><p>其中：</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+\mathbf{f}_{TOA} &= \begin{bmatrix} f_{1,TOA} & \cdots & f_{N,TOA} \end{bmatrix}^T, \\
+\mathbf{J}_{TOA} &= \begin{bmatrix}
+\frac{\partial f_{1,TOA}}{\partial x} & \frac{\partial f_{1,TOA}}{\partial y} & \frac{\partial f_{1,TOA}}{\partial z} \\
+\vdots & \vdots & \vdots \\
+\frac{\partial f_{N,TOA}}{\partial x} & \frac{\partial f_{N,TOA}}{\partial y} & \frac{\partial f_{N,TOA}}{\partial z}
+\end{bmatrix}
+\end{aligned} \tag{6}</script><blockquote>
+<p><strong>注</strong>：由于使用了函数 $T$ 来获取传播时延的理论值，$\mathbf{J}$ 中的偏导需要利用差分来代替。当 $T$ 在空间中是连续时，差分步长可以取很小；若是离散的，则需另外考虑，同时可能出现迭代不收敛和引入误差的问题。</p>
+</blockquote>
+<p>TOA 是目前熟练掌握的模型，目前为止遇到的绝大多数定位问题都可以通过 TOA 或其变体解决。大多数情况下时钟同步，$t_s = 0$；异步情况也可以对时延偏量进行遍历查找，简单方便。</p>
+<h2 id="4-TDOA-模型"><a href="#4-TDOA-模型" class="headerlink" title="4 TDOA 模型"></a>4 TDOA 模型</h2><p>将第 1 个周期作为基准，后续每个周期的时延测量值都减去第 1 个周期的时延测量值，即将 (1) 式在 $i$ 对应的情况减去 $i = 1$ 对应的情况，得到：</p>
+<script type="math/tex; mode=display">
+\|\mathbf{A} - \mathbf{P}_i\|_2 - \|\mathbf{A} - \mathbf{P}_1\|_2 = c\,(t_i - t_1) \qquad i = 2, \dots, N \tag{7}</script><p>对应的最小二乘估计器为：</p>
+<script type="math/tex; mode=display">
+\begin{bmatrix}
+x_{TDOA} \\
+y_{TDOA} \\
+z_{TDOA}
+\end{bmatrix}
+= \arg\min_{x,y,z} \frac{1}{2} \sum_{i=2}^{N} f_{i,TDOA}^2
+= \arg\min_{x,y,z} \frac{1}{2} \sum_{i=2}^{N} \Big[ \|\mathbf{A} - \mathbf{P}_i\|_2 - \|\mathbf{A} - \mathbf{P}_1\|_2 - c\,(t_i - t_1) \Big]^2 \tag{8}</script><p>同样，引入声线弯曲函数后的形式为：</p>
+<script type="math/tex; mode=display">
+\begin{bmatrix}
+x_{TDOA} \\
+y_{TDOA} \\
+z_{TDOA}
+\end{bmatrix}
+= \arg\min_{x,y,z} \frac{1}{2} \sum_{i=1}^{N} \Big[ t_{ri} - t_{r1} - (t_i - t_1) \Big]^2 \tag{9}</script><p>基于 (9) 式，同样可以利用高斯牛顿法迭代得到该模型的最优解，迭代形式同 (5)(6)。</p>
+<h2 id="5-小结与展望"><a href="#5-小结与展望" class="headerlink" title="5 小结与展望"></a>5 小结与展望</h2><p>以上是对 TDOA 的公式推导。结合一些简单仿真来看，目前 TDOA 和 PTOA（查找时延偏量值的 TOA 变体）一样会受到深度未知的影响。但改变测量点与阵元位置的相对位置丰富度（或者说相对位置的方差）对这两种算法性能的影响，还有待进一步研究。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Abgnz1229</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2026/06/19/tdoa%E5%AD%A6%E4%B9%A0/">http://example.com/2026/06/19/tdoa%E5%AD%A6%E4%B9%A0/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">Abgnz1229 s blog</a>！</span></div></div><div class="tag_share"><div class="post_share"><div class="social-share" data-image="/images/background.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://fastly.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://fastly.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2026/06/21/2026-06-21-claude-code-wechatai/"><img class="prev-cover" src="/images/background.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">从零搭建一个微信风格 AI 聊天应用（FastAPI + 原生 JS）</div></div></a></div><div class="next-post pull-right"><a href="/2026/06/18/hexo%E6%B5%8B%E8%AF%95/"><img class="next-cover" src="/images/background.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Hexo博客搭建与部署踩坑全记录</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-TOA-%E6%A8%A1%E5%9E%8B"><span class="toc-number">1.</span> <span class="toc-text">1 TOA 模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E8%80%83%E8%99%91%E5%A3%B0%E7%BA%BF%E5%BC%AF%E6%9B%B2"><span class="toc-number">2.</span> <span class="toc-text">2 考虑声线弯曲</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E9%AB%98%E6%96%AF%E7%89%9B%E9%A1%BF%E8%BF%AD%E4%BB%A3"><span class="toc-number">3.</span> <span class="toc-text">3 高斯牛顿迭代</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-TDOA-%E6%A8%A1%E5%9E%8B"><span class="toc-number">4.</span> <span class="toc-text">4 TDOA 模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E5%B0%8F%E7%BB%93%E4%B8%8E%E5%B1%95%E6%9C%9B"><span class="toc-number">5.</span> <span class="toc-text">5 小结与展望</span></a></li></ol></div></div><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/head.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Abgnz1229</div><div class="author-info__description"></div></div><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/chenxz21/bcxm" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:xxxxxx@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content">嗨嗨嗨</div></div></div></div></main><footer id="footer" style="background: #FFFFFF"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2026 By Abgnz1229</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/chenxz21/hexo-theme-bcxm">Bcxm</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://fastly.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"]],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.2
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, ''],
+        insertScript: [200, () => {
+          document.querySelectorAll('mjx-container:not\([display]\)').forEach(node => {
+            const target = node.parentNode
+            if (target.nodeName.toLowerCase() === 'li') {
+              target.parentNode.classList.add('has-jax')
+            } else {
+              target.classList.add('has-jax')
+            }
+          });
+        }, '', false]
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://fastly.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typeset()
+}</script></div><script type="text/javascript" src="https://fastly.jsdelivr.net/npm/leancloud-storage@4.10.0/dist/av-min.js"></script><script id="canvas_nest" defer="defer" color="0,0,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="https://fastly.jsdelivr.net/npm/butterfly-extsrc@1/dist/canvas-nest.min.js"></script><script id="click-heart" src="https://fastly.jsdelivr.net/npm/butterfly-extsrc@1/dist/click-heart.min.js" async="async" mobile="false"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
